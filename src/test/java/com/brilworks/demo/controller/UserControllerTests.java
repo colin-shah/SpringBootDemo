@@ -63,7 +63,7 @@ class UserControllerTests {
     void test_createUser() throws Exception {
         // given - precondition or setup
         UserDTO request = new UserDTO();
-        request.setName("Colin Shah");
+        request.setName("Colin J Shah");
 
         // when - action or behaviour that we are going test
         mockMvc.perform(MockMvcRequestBuilders.post("/api/user")
@@ -76,15 +76,45 @@ class UserControllerTests {
     @Order(3)
     void test_fetchSingleUsers() throws Exception {
         // given - precondition or setup
-        User user = new User("Colin Shah");
-        userRepositories.save(user);
+        User user = new User("Shah Colin J");
+        user = userRepositories.save(user);
         // when -  action or the behaviour that we are going test
-        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/user/1"));
+        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/user/{id}", user.getId()));
 
         // then - verify the output
         response.andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(jsonPath("$.name", Matchers.is(user.getName())));
 
+    }
+
+    @Test
+    @Order(4)
+    public void test_fetchSingleUser_NotFound() throws Exception{
+        // given - precondition or setup
+        long userId = 20;
+        // when -  action or the behaviour that we are going test
+        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/user/{id}", userId));
+
+        // then - verify the output
+        response.andExpect(status().isNotFound())
+                .andDo(print());
+    }
+
+    @Test
+    @Order(5)
+    void test_createUser_Conflict() throws Exception {
+        // given - precondition or setup
+        User user = new User("John Smith");
+        userRepositories.save(user);
+
+        UserDTO request = new UserDTO();
+        request.setName("John Smith");
+
+        // when - action or behaviour that we are going test
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/user")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isConflict());
     }
 }
