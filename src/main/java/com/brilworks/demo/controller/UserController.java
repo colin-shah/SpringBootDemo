@@ -1,6 +1,7 @@
 package com.brilworks.demo.controller;
 
 import com.brilworks.demo.DTO.UserDTO;
+import com.brilworks.demo.exceptions.EntityExistsException;
 import com.brilworks.demo.exceptions.EntityNotFoundException;
 import com.brilworks.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ public class UserController {
 
     @PostMapping("user")
     @ResponseStatus(value = HttpStatus.CREATED)
-    public void save(@RequestBody UserDTO userDTO) {
+    public void save(@RequestBody UserDTO userDTO) throws EntityExistsException {
         userService.save(userDTO);
     }
 

@@ -2,6 +2,7 @@ package com.brilworks.demo.service.impl;
 
 import com.brilworks.demo.DTO.UserDTO;
 import com.brilworks.demo.entity.User;
+import com.brilworks.demo.exceptions.EntityExistsException;
 import com.brilworks.demo.exceptions.EntityNotFoundException;
 import com.brilworks.demo.repositories.UserRepositories;
 import com.brilworks.demo.service.UserService;
@@ -22,7 +23,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void save(UserDTO userDTO) {
+    public void save(UserDTO userDTO) throws EntityExistsException {
+        Optional<User> opsUser = userRepositories.findByName(userDTO.getName());
+        if (opsUser.isPresent()) {
+            throw new EntityExistsException("User exists with given name");
+        }
         User user = new User();
         user.setName(userDTO.getName());
         userRepositories.save(user);
